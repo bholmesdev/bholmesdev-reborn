@@ -28,15 +28,17 @@
       const illo = new Zdog.Illustration({
         element: ".zdog-canvas",
         dragRotate: true,
-        rotate: { x: -0.5, y: Zdog.TAU / 8 },
+        rotate: { x: -Zdog.TAU / 16, y: Zdog.TAU / 10 },
       });
 
       const groupWhiteboard = new Zdog.Group({
         addTo: illo,
       });
 
+      const whiteboardTheWidth = 90;
+
       const fill = new Zdog.Rect({
-        width: 90,
+        width: whiteboardTheWidth,
         height: 120,
         stroke: 2,
         color: "#fff",
@@ -44,7 +46,7 @@
       });
 
       const border = new Zdog.Rect({
-        width: 90,
+        width: whiteboardTheWidth,
         height: 120,
         stroke: 8,
         color: bodyColor,
@@ -74,12 +76,54 @@
       groupWhiteboard.addChild(fill);
       groupWhiteboard.addChild(border);
 
+      groupWhiteboard.rotate.x = 0;
+      let animateSpring = createSpringAnimation(180, 14, 1);
+      animate();
+
+      setInterval(() => {
+        groupWhiteboard.rotate.x = 0;
+        animateSpring = createSpringAnimation(180, 14, 1);
+        animate();
+      }, 3000);
+
       function animate() {
         illo.updateRenderGraph();
-        groupWhiteboard.rotate.x -= 0.03;
+        const currX = groupWhiteboard.rotate.x;
+        const nextX = animateSpring(currX);
+
+        // If difference is imperceptible, stop animating
+        if (Math.abs(currX - nextX) <= 0.0001) {
+          return;
+        }
+
+        groupWhiteboard.rotate.x = nextX;
         requestAnimationFrame(animate);
       }
-      animate();
+
+      // Spring physics: https://blog.maximeheckel.com/posts/the-physics-behind-spring-animations/
+
+      function createSpringAnimation(
+        stiffness: number,
+        damping: number,
+        mass: number
+      ) {
+        let velocity = 0;
+        const springLength = -Zdog.TAU / 2;
+        const k = -stiffness;
+        const d = -damping;
+        const frameRate = 1 / 60;
+
+        // curry values that change overtime
+        return function animate(x: number) {
+          const forceOfSpring = k * (x - springLength);
+          const forceOfDamping = d * velocity;
+          const acceleration = (forceOfSpring + forceOfDamping) / mass;
+          velocity += acceleration * frameRate;
+          const newX = x + velocity * frameRate;
+
+          return newX;
+        };
+      }
     </script>
   </body>
 </html>
