@@ -4,9 +4,11 @@ specifiers:
   '@astrojs/markdoc': ^0.0.2
   '@astrojs/solid-js': ^2.1.0
   '@astrojs/tailwind': ^3.1.1
+  '@types/zdog': ^1.1.2
   astro: ^2.1.3
   solid-js: ^1.4.3
   tailwindcss: ^3.0.24
+  zdog: ^1.1.3
 
 dependencies:
   '@astrojs/markdoc': 0.0.2
@@ -15,6 +17,10 @@ dependencies:
   astro: 2.1.3
   solid-js: 1.6.15
   tailwindcss: 3.2.7
+  zdog: 1.1.3
+
+devDependencies:
+  '@types/zdog': 1.1.2
 
 packages:
 
@@ -798,6 +804,10 @@ packages:
   /@types/yargs-parser/21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
     dev: false
+
+  /@types/zdog/1.1.2:
+    resolution: {integrity: sha512-E1nINLaVvxu7N66gANMjhlxMdGL9KqsePa7NyO4p96xeQ7YiAjydVH+eE4W2aLdGyIcLqt+pNMK8l7+gD8c+Wg==}
+    dev: true
 
   /@vscode/emmet-helper/2.8.6:
     resolution: {integrity: sha512-IIB8jbiKy37zN8bAIHx59YmnIelY78CGHtThnibD/d3tQOKRY83bYVi9blwmZVUZh6l9nfkYH3tvReaiNxY9EQ==}
@@ -3421,6 +3431,10 @@ packages:
   /yocto-queue/0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+    dev: false
+
+  /zdog/1.1.3:
+    resolution: {integrity: sha512-raRj6r0gPzopFm5XWBJZr/NuV4EEnT4iE+U3dp5FV5pCb588Gmm3zLIp/j9yqqcMiHH8VNQlerLTgOqL7krh6w==}
     dev: false
 
   /zod/3.21.4:
