@@ -2,14 +2,84 @@
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+  </head>
+  <body>
+    <h1>Astro</h1>
+    <canvas class="zdog-canvas" width="400" height="300"></canvas>
+
+    <style>
+      .zdog-canvas {
+        /* background: #292b2b; */
+        background: #e9eff1;
+      }
+    </style>
+
+    <script>
+      import Zdog from "zdog";
+
+      const bodyColor = "#292b2b";
+
+      const illo = new Zdog.Illustration({
+        element: ".zdog-canvas",
+        dragRotate: true,
+        rotate: { x: -0.5, y: Zdog.TAU / 8 },
+      });
+
+      const groupWhiteboard = new Zdog.Group({
+        addTo: illo,
+      });
+
+      const fill = new Zdog.Rect({
+        width: 90,
+        height: 120,
+        stroke: 2,
+        color: "#fff",
+        fill: true,
+      });
+
+      const border = new Zdog.Rect({
+        width: 90,
+        height: 120,
+        stroke: 8,
+        color: bodyColor,
+      });
+
+      const groupLeftStand = new Zdog.Group({
+        translate: { x: -(fill.width / 2) - 12, y: 40 },
+      });
+
+      const stand = new Zdog.Rect({
+        width: 16,
+        height: 80,
+        stroke: 10,
+        color: bodyColor,
+        fill: true,
+        rotate: { y: Zdog.TAU / 4 },
+      });
+
+      const groupRightStand = new Zdog.Group({
+        translate: { x: fill.width / 2 + 12, y: 40 },
+      });
+
+      groupLeftStand.addChild(stand);
+      groupRightStand.addChild(stand.copy());
+      illo.addChild(groupRightStand);
+      illo.addChild(groupLeftStand);
+      groupWhiteboard.addChild(fill);
+      groupWhiteboard.addChild(border);
+
+      function animate() {
+        illo.updateRenderGraph();
+        groupWhiteboard.rotate.x -= 0.03;
+        requestAnimationFrame(animate);
+      }
+      animate();
+    </script>
+  </body>
 </html>
