@@ -25,9 +25,9 @@ export async function animateLine({
     const initialX = from.x;
     const initialY = from.y;
 
-    const xDiff = Math.abs(to.x - from.x);
-    const yDiff = Math.abs(to.y - from.y);
-    const target = Math.max(xDiff, yDiff);
+    const xDiff = to.x - from.x;
+    const yDiff = to.y - from.y;
+    const target = Math.max(Math.abs(xDiff), Math.abs(yDiff));
 
     const xScale = xDiff / target;
     const yScale = yDiff / target;
