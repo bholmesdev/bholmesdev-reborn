@@ -18,24 +18,6 @@ export function smilieFace(illo: Zdog.Illustration) {
     color: "blue",
   };
 
-  const leftEye = new Zdog.Shape({
-    ...shared,
-    path: [
-      { x: -20, y: -20 },
-      { x: -20, y: -20 },
-    ],
-  });
-
-  const rightEye = new Zdog.Shape({
-    ...shared,
-    // make visible on a delay
-    visible: false,
-    path: [
-      { x: 20, y: -20 },
-      { x: 20, y: -20 },
-    ],
-  });
-
   const mouthAnchor = new Zdog.Anchor({
     addTo: face,
     translate: { x: 0, y: 12 },
@@ -74,19 +56,20 @@ export function smilieFace(illo: Zdog.Illustration) {
   return {
     face,
     async animate() {
+      // Left eye
       animateLine({
-        line: leftEye,
+        from: { x: -20, y: -20 },
+        to: { x: -20, y: 0 },
         illo,
-        direction: "vertical",
-        length: 20,
+        shapeOpts: shared,
       });
-      await wait(150);
-      rightEye.visible = true;
+      await wait(250);
+      // Right eye
       animateLine({
-        line: rightEye,
+        from: { x: 20, y: -20 },
+        to: { x: 20, y: 0 },
         illo,
-        direction: "vertical",
-        length: 20,
+        shapeOpts: shared,
       });
       await wait(150);
       const spring = new Spring({
@@ -116,24 +99,6 @@ export function frownieFace(illo: Zdog.Illustration) {
     addTo: face,
     color: "red",
   };
-
-  const leftEye = new Zdog.Shape({
-    ...shared,
-    path: [
-      { x: -20, y: -20 },
-      { x: -20, y: -20 },
-    ],
-  });
-
-  const rightEye = new Zdog.Shape({
-    ...shared,
-    // make visible on a delay
-    visible: false,
-    path: [
-      { x: 20, y: -20 },
-      { x: 20, y: -20 },
-    ],
-  });
 
   const mouthAnchor = new Zdog.Anchor({
     addTo: face,
@@ -175,21 +140,23 @@ export function frownieFace(illo: Zdog.Illustration) {
   return {
     face,
     async animate() {
+      // Left eye
       animateLine({
-        line: leftEye,
+        from: { x: -20, y: -20 },
+        to: { x: -20, y: 0 },
         illo,
-        direction: "vertical",
-        length: 20,
+        shapeOpts: shared,
+      });
+      await wait(250);
+      // Right eye
+      animateLine({
+        from: { x: 20, y: -20 },
+        to: { x: 20, y: 0 },
+        illo,
+        shapeOpts: shared,
       });
       await wait(150);
-      rightEye.visible = true;
-      animateLine({
-        line: rightEye,
-        illo,
-        direction: "vertical",
-        length: 20,
-      });
-      await wait(150);
+      // Mouth
       const spring = new Spring({
         target: (Zdog.TAU * 5) / 8,
         precision: 0.1,

@@ -1,30 +1,46 @@
 import { Spring } from "simple-spring";
+import Zdog from "zdog";
 
 export async function animateLine({
-  line,
+  from,
+  to,
   illo,
-  direction,
-  length,
+  shapeOpts,
 }: {
-  line: Zdog.Shape;
+  from: { x: number; y: number };
+  to: { x: number; y: number };
   illo: Zdog.Illustration;
-  direction: "horizontal" | "vertical";
-  length: number;
+  shapeOpts?: Zdog.ShapeOptions;
 }) {
+  const line = new Zdog.Shape({
+    ...shapeOpts,
+    path: [from, { ...from }],
+  });
+
+  if (shapeOpts?.addTo) {
+    shapeOpts.addTo.updateGraph();
+  }
+
   return new Promise((resolve) => {
-    const initialX = line.path[1].x;
-    const initialY = line.path[1].y;
+    const initialX = from.x;
+    const initialY = from.y;
+
+    const xDiff = Math.abs(to.x - from.x);
+    const yDiff = Math.abs(to.y - from.y);
+    const target = Math.max(xDiff, yDiff);
+
+    const xScale = xDiff / target;
+    const yScale = yDiff / target;
+
     const spring = new Spring({
-      target: length,
+      target,
       // lower precision for perf
       // visually looks the same
       precision: 0.1,
       onFrame(value) {
-        if (direction === "horizontal") {
-          line.path[1].x = initialX + value;
-        } else {
-          line.path[1].y = initialY + value;
-        }
+        line.path[1].x = initialX + value * xScale;
+        line.path[1].y = initialY + value * yScale;
+
         line.updatePath();
         illo.updateRenderGraph();
       },
