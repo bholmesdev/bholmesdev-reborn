@@ -12,6 +12,7 @@
   <body>
     <h1>Astro</h1>
     <canvas class="zdog-canvas" width="400" height="300"></canvas>
+    <button class="flip-whiteboard">Flip</button>
 
     <style>
       .zdog-canvas {
@@ -22,8 +23,12 @@
 
     <script>
       import Zdog from "zdog";
+      import { smilieFace } from "./_faces";
+      import { Spring } from "simple-spring";
 
       const bodyColor = "#292b2b";
+
+      const flipButton = document.querySelector(".flip-whiteboard")!;
 
       const illo = new Zdog.Illustration({
         element: ".zdog-canvas",
@@ -45,6 +50,48 @@
         fill: true,
       });
 
+      const markerThickness = 6;
+
+      function oldFrownieFace() {
+        const face = new Zdog.Group({
+          translate: { x: 0, y: 0, z: 0 },
+        });
+
+        const shared: Zdog.ShapeOptions = {
+          addTo: face,
+          stroke: markerThickness,
+          color: "blue",
+          backface: false,
+        };
+
+        const leftEye = new Zdog.Shape({
+          ...shared,
+          path: [
+            { x: -20, y: -20 },
+            { x: -20, y: 0 },
+          ],
+        });
+
+        const rightEye = new Zdog.Shape({
+          ...shared,
+          path: [
+            { x: 20, y: -20 },
+            { x: 20, y: 0 },
+          ],
+        });
+
+        const mouth = new Zdog.Ellipse({
+          ...shared,
+          width: 20,
+          height: 20,
+          quarters: 2,
+          translate: { x: 0, y: 12 },
+          rotate: { z: Zdog.TAU / 4 },
+        });
+
+        return face;
+      }
+
       const border = new Zdog.Rect({
         width: whiteboardTheWidth,
         height: 120,
@@ -57,7 +104,7 @@
       });
 
       const stand = new Zdog.Rect({
-        width: 16,
+        width: 10,
         height: 80,
         stroke: 10,
         color: bodyColor,
@@ -65,65 +112,77 @@
         rotate: { y: Zdog.TAU / 4 },
       });
 
+      const foot = new Zdog.Rect({
+        width: 10,
+        height: 40,
+        stroke: 10,
+        color: bodyColor,
+        fill: true,
+        rotate: { x: Zdog.TAU / 4 },
+        translate: { y: 40 },
+      });
+
       const groupRightStand = new Zdog.Group({
         translate: { x: fill.width / 2 + 12, y: 40 },
       });
 
       groupLeftStand.addChild(stand);
+      groupLeftStand.addChild(foot);
       groupRightStand.addChild(stand.copy());
+      groupRightStand.addChild(foot.copy());
       illo.addChild(groupRightStand);
       illo.addChild(groupLeftStand);
       groupWhiteboard.addChild(fill);
       groupWhiteboard.addChild(border);
 
-      groupWhiteboard.rotate.x = 0;
-      let animateSpring = createSpringAnimation(180, 14, 1);
-      animate();
+      // new Zdog.Ellipse({
+      //   addTo: groupWhiteboard,
+      //   diameter: 20,
+      //   quarters: 2,
+      //   translate: { x: 0, y: 0, z: 0 },
+      //   stroke: 2,
+      //   color: "blue",
+      //   // rotate: { z: Zdog.TAU * (1 / 8) },
+      // });
 
-      setInterval(() => {
-        groupWhiteboard.rotate.x = 0;
-        animateSpring = createSpringAnimation(180, 14, 1);
-        animate();
-      }, 3000);
+      // new Zdog.Ellipse({
+      //   addTo: groupWhiteboard,
+      //   diameter: 20,
+      //   quarters: 2,
+      //   translate: { x: 0, y: 0, z: 0 },
+      //   stroke: 3,
+      //   color: "white",
+      //   rotate: { z: Zdog.TAU * (1 / 4) },
+      // });
 
-      function animate() {
-        illo.updateRenderGraph();
-        const currX = groupWhiteboard.rotate.x;
-        const nextX = animateSpring(currX);
+      let currFace = smilieFace(illo);
+      groupWhiteboard.addChild(currFace.face);
+      currFace.animate();
 
-        // If difference is imperceptible, stop animating
-        if (Math.abs(currX - nextX) <= 0.0001) {
-          return;
-        }
+      illo.updateRenderGraph();
 
-        groupWhiteboard.rotate.x = nextX;
-        requestAnimationFrame(animate);
-      }
+      flipButton.addEventListener("click", function flipWhiteboard() {
+        const springValue = new Spring({
+          target: Zdog.TAU / 2,
+          tension: 180,
+          friction: 14,
+          onFrame(value) {
+            groupWhiteboard.rotate.x = value;
+            illo.updateRenderGraph();
+          },
+          async onComplete() {
+            groupWhiteboard.rotate.x = 0;
+            groupWhiteboard.removeChild(currFace.face);
 
-      // Spring physics: https://blog.maximeheckel.com/posts/the-physics-behind-spring-animations/
+            currFace = smilieFace(illo);
+            groupWhiteboard.addChild(currFace.face);
+            groupWhiteboard.updateGraph();
+            await currFace.animate();
+          },
+        });
 
-      function createSpringAnimation(
-        stiffness: number,
-        damping: number,
-        mass: number
-      ) {
-        let velocity = 0;
-        const springLength = -Zdog.TAU / 2;
-        const k = -stiffness;
-        const d = -damping;
-        const frameRate = 1 / 60;
-
-        // curry values that change overtime
-        return function animate(x: number) {
-          const forceOfSpring = k * (x - springLength);
-          const forceOfDamping = d * velocity;
-          const acceleration = (forceOfSpring + forceOfDamping) / mass;
-          velocity += acceleration * frameRate;
-          const newX = x + velocity * frameRate;
-
-          return newX;
-        };
-      }
+        springValue.start();
+      });
     </script>
   </body>
 </html>
