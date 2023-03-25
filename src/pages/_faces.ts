@@ -176,3 +176,56 @@ export function frownieFace(illo: Zdog.Illustration) {
     },
   };
 }
+
+export function deadFace(illo: Zdog.Illustration) {
+  const face = new Zdog.Group();
+
+  const shared = {
+    ...markerConfig,
+    addTo: face,
+    color: "green",
+  };
+
+  return {
+    face,
+    async animate() {
+      // Left eye
+      animateLine({
+        from: { x: -20, y: -20 },
+        to: { x: -6, y: -6 },
+        illo,
+        shapeOpts: shared,
+      });
+      await wait(150);
+      animateLine({
+        from: { x: -6, y: -20 },
+        to: { x: -20, y: -6 },
+        illo,
+        shapeOpts: shared,
+      });
+      await wait(150);
+      // Right eye
+      animateLine({
+        from: { x: 6, y: -20 },
+        to: { x: 20, y: -6 },
+        illo,
+        shapeOpts: shared,
+      });
+      await wait(150);
+      animateLine({
+        from: { x: 20, y: -20 },
+        to: { x: 6, y: -6 },
+        illo,
+        shapeOpts: shared,
+      });
+      await wait(150);
+      // Mouth
+      animateLine({
+        from: { x: -10, y: 20 },
+        to: { x: 10, y: 20 },
+        illo,
+        shapeOpts: shared,
+      });
+    },
+  };
+}

@@ -23,7 +23,7 @@
 
     <script>
       import Zdog from "zdog";
-      import { frownieFace, smilieFace } from "./_faces";
+      import { deadFace, frownieFace, smilieFace } from "./_faces";
       import { Spring } from "simple-spring";
 
       const bodyColor = "#292b2b";
@@ -99,6 +99,7 @@
         // function wrappers to clone each time
         () => smilieFace(illo),
         () => frownieFace(illo),
+        () => deadFace(illo),
       ];
       let currFaceIdx = 0;
       let currFace = faces[currFaceIdx]();
