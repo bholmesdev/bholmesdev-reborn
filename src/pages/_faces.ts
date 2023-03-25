@@ -38,14 +38,39 @@ export function smilieFace(illo: Zdog.Illustration) {
     translate: { x: 0, y: 12 },
   });
 
-  const mouth = new Zdog.Ellipse({
+  const oldMouth = new Zdog.Ellipse({
     ...shared,
-    addTo: mouthAnchor,
+    addTo: undefined,
     width: 20,
     height: 20,
     quarters: 1,
     rotate: { z: Zdog.TAU / 4, y: Zdog.TAU / 2 },
     backface: true,
+  });
+
+  const mouthArcLeft: Zdog.PathArcCommand = {
+    arc: [
+      { x: -10, y: 10 },
+      { x: 0, y: 10 },
+    ],
+  };
+
+  const mouthArcRight: Zdog.PathArcCommand = {
+    arc: [
+      { x: 10, y: 10 },
+      { x: 10, y: 0 },
+    ],
+  };
+
+  const mouth = new Zdog.Shape({
+    ...shared,
+    addTo: mouthAnchor,
+    path: [
+      { x: -10, y: 0 },
+      mouthArcLeft,
+      // add `mouthArcRight` during animation
+    ],
+    closed: false,
   });
 
   const mouthRevealer = mouth.copy({
@@ -62,7 +87,7 @@ export function smilieFace(illo: Zdog.Illustration) {
         direction: "vertical",
         length: 20,
       });
-      await wait(200);
+      await wait(150);
       rightEye.visible = true;
       animateLine({
         line: rightEye,
@@ -70,16 +95,19 @@ export function smilieFace(illo: Zdog.Illustration) {
         direction: "vertical",
         length: 20,
       });
-      await wait(200);
+      await wait(150);
       const spring = new Spring({
         target: (Zdog.TAU * 5) / 8,
         precision: 0.1,
         onFrame(value) {
-          mouthRevealer.rotate.z = Zdog.TAU / 4 + value;
+          mouthRevealer.rotate.z = -value;
           if (value > Zdog.TAU / 4) {
-            mouth.quarters = 2;
+            // Avoid using `.push()` or spreading existing path.
+            // Creates imperfections in curve.
+            mouth.path = [{ x: -10, y: 0 }, mouthArcLeft, mouthArcRight];
+            mouth.updatePath();
+            face.updateGraph();
           }
-          mouth.updatePath();
           illo.updateRenderGraph();
         },
       });
