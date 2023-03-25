@@ -23,7 +23,7 @@
 
     <script>
       import Zdog from "zdog";
-      import { smilieFace } from "./_faces";
+      import { frownieFace, smilieFace } from "./_faces";
       import { Spring } from "simple-spring";
 
       const bodyColor = "#292b2b";
@@ -51,46 +51,6 @@
       });
 
       const markerThickness = 6;
-
-      function oldFrownieFace() {
-        const face = new Zdog.Group({
-          translate: { x: 0, y: 0, z: 0 },
-        });
-
-        const shared: Zdog.ShapeOptions = {
-          addTo: face,
-          stroke: markerThickness,
-          color: "blue",
-          backface: false,
-        };
-
-        const leftEye = new Zdog.Shape({
-          ...shared,
-          path: [
-            { x: -20, y: -20 },
-            { x: -20, y: 0 },
-          ],
-        });
-
-        const rightEye = new Zdog.Shape({
-          ...shared,
-          path: [
-            { x: 20, y: -20 },
-            { x: 20, y: 0 },
-          ],
-        });
-
-        const mouth = new Zdog.Ellipse({
-          ...shared,
-          width: 20,
-          height: 20,
-          quarters: 2,
-          translate: { x: 0, y: 12 },
-          rotate: { z: Zdog.TAU / 4 },
-        });
-
-        return face;
-      }
 
       const border = new Zdog.Rect({
         width: whiteboardTheWidth,
@@ -135,30 +95,22 @@
       groupWhiteboard.addChild(fill);
       groupWhiteboard.addChild(border);
 
-      // new Zdog.Ellipse({
-      //   addTo: groupWhiteboard,
-      //   diameter: 20,
-      //   quarters: 2,
-      //   translate: { x: 0, y: 0, z: 0 },
-      //   stroke: 2,
-      //   color: "blue",
-      //   // rotate: { z: Zdog.TAU * (1 / 8) },
-      // });
+      const faces = [
+        // function wrappers to clone each time
+        () => smilieFace(illo),
+        () => frownieFace(illo),
+      ];
+      let currFaceIdx = 0;
+      let currFace = faces[currFaceIdx]();
 
-      // new Zdog.Ellipse({
-      //   addTo: groupWhiteboard,
-      //   diameter: 20,
-      //   quarters: 2,
-      //   translate: { x: 0, y: 0, z: 0 },
-      //   stroke: 3,
-      //   color: "white",
-      //   rotate: { z: Zdog.TAU * (1 / 4) },
-      // });
+      function drawFace() {
+        const { face, animate } = currFace;
+        groupWhiteboard.addChild(face);
+        groupWhiteboard.updateGraph();
+        animate();
+      }
 
-      let currFace = smilieFace(illo);
-      groupWhiteboard.addChild(currFace.face);
-      currFace.animate();
-
+      drawFace();
       illo.updateRenderGraph();
 
       flipButton.addEventListener("click", function flipWhiteboard() {
@@ -174,10 +126,9 @@
             groupWhiteboard.rotate.x = 0;
             groupWhiteboard.removeChild(currFace.face);
 
-            currFace = smilieFace(illo);
-            groupWhiteboard.addChild(currFace.face);
-            groupWhiteboard.updateGraph();
-            await currFace.animate();
+            currFaceIdx = (currFaceIdx + 1) % faces.length;
+            currFace = faces[currFaceIdx]();
+            drawFace();
           },
         });
 
