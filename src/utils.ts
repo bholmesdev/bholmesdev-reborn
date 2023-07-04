@@ -53,3 +53,11 @@ export async function animateLine({
 export async function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function youtubeVidToThumbnail(url: string): string | undefined {
+  const idMatch = url.match(/[\/=]((\w|-)+)$/);
+  if (!idMatch) throw Error("TODO: handle default thumbnail URL");
+
+  const [, id] = idMatch;
+  return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+}

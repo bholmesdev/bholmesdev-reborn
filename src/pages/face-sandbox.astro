@@ -1,0 +1,356 @@
+---
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+  </head>
+  <body>
+    <h1>Astro</h1>
+    <canvas class="zdog-canvas" width="600" height="500"></canvas>
+    <button class="flip-whiteboard">Flip</button>
+
+    <style>
+      .zdog-canvas {
+        /* background: #292b2b; */
+        background: linear-gradient(180deg, #f9fdff, #e2f8ff);
+      }
+    </style>
+
+    <script>
+      import Zdog from "zdog";
+      import { deadFace, frownieFace, smilieFace } from "../faces";
+      import { Spring } from "simple-spring";
+
+      const bodyColor = "#292b2b";
+
+      const flipButton = document.querySelector(".flip-whiteboard")!;
+
+      const illo = new Zdog.Illustration({
+        element: ".zdog-canvas",
+        dragRotate: true,
+        rotate: { y: Zdog.TAU / 4 },
+        zoom: 2,
+      });
+
+      const groupWhiteboard = new Zdog.Group({
+        // addTo: illo,
+      });
+
+      const whiteboardTheWidth = 90;
+
+      const fill = new Zdog.Rect({
+        width: whiteboardTheWidth,
+        height: 120,
+        stroke: 2,
+        color: "#fff",
+        fill: true,
+      });
+
+      const border = new Zdog.Rect({
+        width: whiteboardTheWidth,
+        height: 120,
+        stroke: 8,
+        color: bodyColor,
+      });
+
+      const groupLeftStand = new Zdog.Group({
+        translate: { x: -(fill.width / 2) - 12, y: 40 },
+      });
+
+      const stand = new Zdog.Rect({
+        width: 10,
+        height: 80,
+        stroke: 10,
+        color: bodyColor,
+        fill: true,
+        rotate: { y: Zdog.TAU / 4 },
+      });
+
+      const foot = new Zdog.Rect({
+        width: 10,
+        height: 40,
+        stroke: 10,
+        color: bodyColor,
+        fill: true,
+        rotate: { x: Zdog.TAU / 4 },
+        translate: { y: 40 },
+      });
+
+      const groupRightStand = new Zdog.Group({
+        translate: { x: fill.width / 2 + 12, y: 40 },
+      });
+
+      groupLeftStand.addChild(stand);
+      groupLeftStand.addChild(foot);
+      groupRightStand.addChild(stand.copy());
+      groupRightStand.addChild(foot.copy());
+      // illo.addChild(groupRightStand);
+      // illo.addChild(groupLeftStand);
+      groupWhiteboard.addChild(fill);
+      groupWhiteboard.addChild(border);
+
+      const faces = [
+        // function wrappers to clone each time
+        () => smilieFace(illo),
+        () => frownieFace(illo),
+        () => deadFace(illo),
+      ];
+      let currFaceIdx = 0;
+      let currFace = faces[currFaceIdx]();
+
+      function drawFace() {
+        const { face, animate } = currFace;
+        groupWhiteboard.addChild(face);
+        groupWhiteboard.updateGraph();
+        animate();
+      }
+
+      drawFace();
+      illo.updateRenderGraph();
+
+      function update() {
+        requestAnimationFrame(() => {
+          illo.updateRenderGraph();
+          update();
+        });
+      }
+
+      update();
+
+      function flipWhiteboard() {
+        const springValue = new Spring({
+          target: Zdog.TAU / 2,
+          tension: 180,
+          friction: 14,
+          onFrame(value) {
+            groupWhiteboard.rotate.x = value;
+            illo.updateRenderGraph();
+          },
+          async onComplete() {
+            groupWhiteboard.rotate.x = 0;
+            groupWhiteboard.removeChild(currFace.face);
+
+            currFaceIdx = (currFaceIdx + 1) % faces.length;
+            currFace = faces[currFaceIdx]();
+            drawFace();
+          },
+        });
+
+        springValue.start();
+      }
+      flipButton.addEventListener("click", flipWhiteboard);
+
+      // setInterval(() => {
+      //   flipWhiteboard();
+      // }, 2800);
+
+      (function face() {
+        const head = new Zdog.Rect({
+          addTo: illo,
+          stroke: 28,
+          color: "#F5EDDB",
+          width: 24,
+          height: 24,
+        });
+
+        const glasses = new Zdog.Group({
+          addTo: head,
+          translate: { y: 10, z: 14 },
+        });
+
+        const frame = new Zdog.Shape({
+          addTo: glasses,
+          color: "#473739",
+          stroke: 3,
+          path: [
+            // left lens
+            { x: -24, y: -11 },
+            {
+              arc: [
+                { x: -24, y: -18 },
+                { x: -12, y: -18 },
+              ],
+            },
+            {
+              arc: [
+                { x: -2, y: -18 },
+                { x: -2, y: -10 },
+              ],
+            },
+            {
+              arc: [
+                { x: -2, y: 0 },
+                { x: -12, y: 0 },
+              ],
+            },
+            {
+              arc: [
+                { x: -24, y: 0 },
+                { x: -24, y: -11 },
+              ],
+            },
+            // bridge
+            { move: { x: -2, y: -14 } },
+            { x: 2, y: -14 },
+            // right lens
+            { move: { x: 24, y: -11 } },
+            {
+              arc: [
+                { x: 24, y: -18 },
+                { x: 12, y: -18 },
+              ],
+            },
+            {
+              arc: [
+                { x: 2, y: -18 },
+                { x: 2, y: -10 },
+              ],
+            },
+            {
+              arc: [
+                { x: 2, y: 0 },
+                { x: 12, y: 0 },
+              ],
+            },
+            {
+              arc: [
+                { x: 24, y: 0 },
+                { x: 24, y: -11 },
+              ],
+            },
+          ],
+        });
+
+        const leftStem = new Zdog.Shape({
+          addTo: glasses,
+          color: "#473739",
+          stroke: 3,
+          closed: false,
+          visible: false,
+          translate: { x: -24, y: 24 },
+          path: [
+            { y: 0 },
+            { y: 0, z: -16 },
+            {
+              arc: [
+                { y: 0, z: -28 },
+                { y: 6, z: -28 },
+              ],
+            },
+          ],
+        });
+
+        const rightStem = leftStem.copy({
+          visible: true,
+          translate: { x: 24, y: -16 },
+        });
+
+        const leftEye = new Zdog.Ellipse({
+          addTo: head,
+          diameter: 10,
+          fill: true,
+          color: "#4D80B2",
+          translate: { x: -12, y: 0, z: 10 },
+        });
+
+        const leftPupil = new Zdog.Ellipse({
+          addTo: leftEye,
+          diameter: 6,
+          fill: true,
+          color: "#000",
+          translate: { z: 1 },
+        });
+
+        const rightEye = leftEye.copy({
+          translate: { x: 12, y: 0, z: 10 },
+        });
+
+        const rightPupil = leftPupil.copy({
+          addTo: rightEye,
+        });
+
+        const smile = new Zdog.Shape({
+          addTo: head,
+          translate: { y: 8, z: 10 },
+          path: [
+            { x: -4, y: 0 },
+            {
+              arc: [
+                { x: -4, y: 4 },
+                { x: 0, y: 4 },
+              ],
+            },
+            {
+              arc: [
+                { x: 4, y: 4 },
+                { x: 4, y: 0 },
+              ],
+            },
+          ],
+          closed: false,
+          stroke: 3,
+          color: "#000",
+        });
+
+        // const hair = new Zdog.RoundedRect({
+        //   addTo: head,
+        //   width: 36,
+        //   height: 24,
+        //   stroke: 12,
+        //   cornerRadius: 2,
+        //   fill: true,
+        //   color: "#473739",
+        //   translate: { y: -24 },
+        //   rotate: { x: Zdog.TAU / 4 },
+        // });
+        const hair = new Zdog.Shape({
+          addTo: head,
+          path: [
+            { x: 22, y: -6, z: 6 },
+            { x: -22, y: -6, z: 6 },
+            { x: -22, y: 0 },
+            { x: 22, y: 0 },
+          ],
+          stroke: 4,
+          color: "#674134",
+          fill: true,
+          translate: { y: -20, z: 10 },
+        });
+
+        const rightSideburn = new Zdog.Shape({
+          addTo: hair,
+          translate: { x: 22 },
+          path: [
+            { y: 0, z: 0 },
+            // { y: 8, z: -4 },
+            // { y: 8, z: -6 },
+            { y: 20, z: -8 },
+            {
+              arc: [
+                { y: 14, z: -8 },
+                { y: 14, z: -14 },
+              ],
+            },
+            {
+              arc: [
+                { y: 14, z: -20 },
+                { y: 20, z: -20 },
+              ],
+            },
+            { y: 28, z: -22 },
+            // Return to top of head
+            { y: 0, z: -22 },
+          ],
+          stroke: 4,
+          color: "#674134",
+          fill: true,
+        });
+      })();
+    </script>
+  </body>
+</html>

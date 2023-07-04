@@ -1,6 +1,6 @@
 import { Spring } from "simple-spring";
 import Zdog from "zdog";
-import { animateLine, wait } from "../utils";
+import { animateLine, wait } from "./utils";
 
 const markerThickness = 6;
 

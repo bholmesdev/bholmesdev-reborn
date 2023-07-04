@@ -1,0 +1,28 @@
+---
+import { ArrowUpRight, Play } from "lucide-solid";
+type Props = {
+  url: string;
+  thumbnailUrl: string;
+  class?: string;
+};
+
+const { thumbnailUrl, url, class: cls } = Astro.props;
+---
+
+<a href={url} target="_blank" rel="noopener noreferrer">
+  <figure class="flex items-center gap-3">
+    <img
+      class="hidden sm:block"
+      src={thumbnailUrl}
+      alt="Ben in front of whiteboard with a web development concept written on it"
+    />
+    <div
+      class="grid p-3 drop-shadow-xl place-items-center bg-gradient-to-tr from-red-500 from-30% to-red-300 rounded-full"
+    >
+      <Play color="white" class="translate-x-[2px]" />
+    </div>
+    <figcaption class={cls}>
+      <slot />
+    </figcaption>
+  </figure>
+</a>
