@@ -6,6 +6,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        heading: [
+          "Tilt Neon, Atkinson Hyperlegible",
+          ...defaultTheme.fontFamily.sans,
+        ],
         sans: ["Atkinson Hyperlegible", ...defaultTheme.fontFamily.sans],
       },
     },

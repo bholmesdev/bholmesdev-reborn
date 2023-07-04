@@ -39,7 +39,7 @@ const firstThreeVideos = allVideos.slice(0, 3);
 
 <Layout>
   <article class="prose">
-    <h1 class="text-3xl">Ben Holmes</h1>
+    <h1 class="text-3xl font-heading font-bold">Ben Holmes</h1>
     <ul>
       <li>
         <a href="https://wtw.dev"
@@ -85,7 +85,9 @@ const firstThreeVideos = allVideos.slice(0, 3);
       </ul>
     </details>
   </article>
-  <div class="grid gap-2 prose-headings:text-2xl prose-headings:font-bold">
+  <div
+    class="grid gap-2 prose-headings:text-3xl prose-headings:font-heading prose-headings:text-2xl prose-headings:font-bold"
+  >
     <h2>Shorts</h2>
     {
       firstThreeVideos.map((v) => (
